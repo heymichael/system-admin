@@ -1,0 +1,21 @@
+---
+description: Admin-system repo boundaries and documentation-first guardrails
+alwaysApply: true
+---
+
+# App Boundary Rule
+
+This repository is the admin-system frontend for the haderach platform. It provides internal user management and administrative controls.
+
+- Keep strict separation of concerns:
+  - This repo owns admin UI implementation, user management flows, and admin-specific components.
+  - Platform orchestration, promotion, and cross-app routing checks remain outside this repo.
+- Keep app logic and app tests in this repository; do not add platform orchestration logic here.
+- Keep naming kebab-case for repo/path conventions unless language-specific rules require otherwise.
+- Prefer explicit docs and small config contracts over heavy scripts or premature automation.
+- Use or update docs when behavior/contracts change:
+  - `README.md`
+  - `docs/architecture.md`
+- When adding new structure, keep it minimal and production-minded.
+- Follow task lifecycle and formatting rules defined in:
+  - `.cursor/rules/todo-conventions.mdc`
