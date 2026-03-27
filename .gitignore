@@ -28,6 +28,9 @@ firebase-debug.log
 # taskmd cache
 .taskmd/
 
+# Vite
+.vite/
+
 # Artifacts / temp
 tmp/
 dist/
