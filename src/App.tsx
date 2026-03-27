@@ -1,22 +1,17 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   GlobalNav,
   Button,
-  Table,
-  TableHeader,
-  TableBody,
-  TableHead,
-  TableRow,
-  TableCell,
-  Card,
-  CardContent,
+  UserTable,
+  TagBadge,
 } from '@haderach/shared-ui'
+import type { UserTableColumn } from '@haderach/shared-ui'
 import { useAuthUser } from './auth/AuthUserContext'
 import { UserDetailModal } from './UserDetailModal'
 import { CreateUserDialog } from './CreateUserDialog'
 import { fetchUsers } from './api'
 import type { UserSummary } from './api'
-import { Plus, RefreshCw } from 'lucide-react'
+import { Plus } from 'lucide-react'
 
 export function App() {
   const authUser = useAuthUser()
@@ -48,6 +43,40 @@ export function App() {
     loadUsers()
   }, [loadUsers])
 
+  const columns = useMemo<UserTableColumn<UserSummary>[]>(() => [
+    {
+      key: 'email',
+      header: 'Email',
+      render: (u) => <span className="font-medium">{u.email}</span>,
+      sortValue: (u) => u.email.toLowerCase(),
+      searchValue: (u) => u.email,
+    },
+    {
+      key: 'name',
+      header: 'Name',
+      render: (u) =>
+        [u.firstName, u.lastName].filter(Boolean).join(' ') || (
+          <span className="text-muted-foreground">—</span>
+        ),
+      sortValue: (u) => [u.firstName, u.lastName].filter(Boolean).join(' ').toLowerCase(),
+      searchValue: (u) => [u.firstName, u.lastName].filter(Boolean).join(' '),
+    },
+    {
+      key: 'roles',
+      header: 'Roles',
+      searchValue: (u) => u.roles.join(' '),
+      render: (u) => (
+        <div className="flex flex-wrap gap-1">
+          {u.roles.length > 0 ? (
+            u.roles.map((r) => <TagBadge key={r} label={r} />)
+          ) : (
+            <span className="text-muted-foreground text-xs">No roles</span>
+          )}
+        </div>
+      ),
+    },
+  ], [])
+
   return (
     <div className="min-h-screen flex flex-col">
       <GlobalNav
@@ -62,22 +91,11 @@ export function App() {
 
       <main className="flex-1 mx-auto w-full max-w-4xl px-6 py-8">
         <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-semibold text-foreground">Users</h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Manage platform users and role assignments
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={loadUsers} disabled={loading}>
-              <RefreshCw className={`h-4 w-4 mr-1.5 ${loading ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-            <Button size="sm" onClick={() => setShowCreate(true)}>
-              <Plus className="h-4 w-4 mr-1.5" />
-              Create user
-            </Button>
-          </div>
+          <h1 className="text-2xl font-semibold text-foreground">Users</h1>
+          <Button size="sm" onClick={() => setShowCreate(true)}>
+            <Plus className="h-4 w-4 mr-1.5" />
+            Create user
+          </Button>
         </div>
 
         {error && (
@@ -86,65 +104,13 @@ export function App() {
           </div>
         )}
 
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Email</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Roles</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading && users.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
-                      Loading users...
-                    </TableCell>
-                  </TableRow>
-                ) : users.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={3} className="text-center py-8 text-muted-foreground">
-                      No users found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  users.filter((u) => !u.roles.includes('haderach_user')).map((u) => (
-                    <TableRow
-                      key={u.email}
-                      className="cursor-pointer hover:bg-accent/50"
-                      onClick={() => setSelectedUser(u)}
-                    >
-                      <TableCell className="font-medium">{u.email}</TableCell>
-                      <TableCell>
-                        {[u.firstName, u.lastName].filter(Boolean).join(' ') || (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {u.roles.length > 0 ? (
-                            u.roles.map((r) => (
-                              <span
-                                key={r}
-                                className="inline-flex items-center rounded-full bg-accent px-2.5 py-0.5 text-xs font-medium text-accent-foreground"
-                              >
-                                {r}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-muted-foreground text-xs">No roles</span>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <UserTable
+          users={users}
+          columns={columns}
+          loading={loading}
+          onRowClick={setSelectedUser}
+          filterFn={(u) => !u.roles.includes('haderach_user')}
+        />
       </main>
 
       {selectedUser && (
