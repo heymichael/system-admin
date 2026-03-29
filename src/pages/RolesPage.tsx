@@ -5,7 +5,7 @@ import { fetchUsers, updateUser } from '../api'
 import type { UserSummary } from '../api'
 import { Loader2 } from 'lucide-react'
 
-const ALL_ROLES = ['user', 'admin', 'finance_admin'] as const
+const ALL_ROLES = ['user', 'admin'] as const
 
 export function RolesPage() {
   const authUser = useAuthUser()
