@@ -8,8 +8,8 @@ import { Users, ShieldCheck, LayoutGrid } from 'lucide-react'
 
 const NAV_ITEMS = [
   { to: '', label: 'Users', icon: Users, end: true },
-  { to: 'roles', label: 'Roles', icon: ShieldCheck },
-  { to: 'apps', label: 'Apps', icon: LayoutGrid },
+  { to: 'roles', label: 'Roles', icon: ShieldCheck, end: false },
+  { to: 'apps', label: 'Apps', icon: LayoutGrid, end: false },
 ] as const
 
 function AppLayout() {

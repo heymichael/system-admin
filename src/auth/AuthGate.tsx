@@ -11,7 +11,7 @@ import {
   signOut,
   type User,
 } from 'firebase/auth'
-import { fetchUserDoc, buildDisplayName, hasAppAccess, getAccessibleApps, APP_CATALOG, APP_ID } from './accessPolicy'
+import { fetchUserDoc, buildDisplayName, hasAppAccess, getAccessibleApps, getAccessibleAdminApps, APP_CATALOG, APP_ID } from './accessPolicy'
 import { getAuthRuntimeConfig } from './runtimeConfig'
 import { AuthUserContext } from './AuthUserContext'
 import { Button } from '@haderach/shared-ui'
@@ -113,6 +113,7 @@ export function AuthGate({ children }: AuthGateProps) {
           photoURL: user?.photoURL ?? undefined,
           displayName: runtimeConfig.bypassAuth ? 'Dev User' : displayName,
           accessibleApps,
+          accessibleAdminApps: getAccessibleAdminApps(roles),
           signOut: signOutCurrentUser,
           getIdToken: async () => user?.getIdToken() ?? '',
         }}
