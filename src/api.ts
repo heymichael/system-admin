@@ -66,6 +66,40 @@ export async function updateUser(
   return res.json()
 }
 
+export interface AppDefinition {
+  id: string
+  label: string
+  path: string
+  type: 'app' | 'admin'
+  granting_roles: string[]
+  sort_order: number
+}
+
+export async function fetchApps(
+  getIdToken: () => Promise<string>,
+): Promise<AppDefinition[]> {
+  const res = await agentFetch('/apps', getIdToken)
+  if (!res.ok) throw new Error(`Failed to fetch apps: ${res.status}`)
+  return res.json()
+}
+
+export async function updateApp(
+  appId: string,
+  fields: { label?: string; granting_roles?: string[]; sort_order?: number },
+  getIdToken: () => Promise<string>,
+): Promise<AppDefinition> {
+  const res = await agentFetch(`/apps/${encodeURIComponent(appId)}`, getIdToken, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(fields),
+  })
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new Error(err.detail || `Update failed: ${res.status}`)
+  }
+  return res.json()
+}
+
 export async function deleteUser(
   email: string,
   getIdToken: () => Promise<string>,
