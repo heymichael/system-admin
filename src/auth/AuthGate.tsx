@@ -17,7 +17,6 @@ import { AuthUserContext } from './AuthUserContext'
 import { Button } from '@haderach/shared-ui'
 
 const APP_PATH = '/admin/system/'
-const IS_DEV = import.meta.env.DEV
 
 interface AuthGateProps {
   children: ReactNode
@@ -34,7 +33,7 @@ function getFirebaseAppInstance(): FirebaseApp | null {
   return initializeApp(runtimeConfig.firebaseConfig)
 }
 
-type AuthStatus = 'loading' | 'redirecting' | 'authorized' | 'unauthorized' | 'config_error'
+type AuthStatus = 'loading' | 'redirecting' | 'sign_in' | 'authorized' | 'unauthorized' | 'config_error'
 
 export function AuthGate({ children }: AuthGateProps) {
   const runtimeConfig = useMemo(() => getAuthRuntimeConfig(), [])
@@ -65,8 +64,8 @@ export function AuthGate({ children }: AuthGateProps) {
     const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
       setUser(nextUser)
       if (!nextUser) {
-        if (IS_DEV) {
-          setStatus('config_error')
+        if (import.meta.env.DEV) {
+          setStatus('sign_in')
         } else {
           setStatus('redirecting')
           window.location.replace(
@@ -125,37 +124,40 @@ export function AuthGate({ children }: AuthGateProps) {
     )
   }
 
-  const handleDevSignIn = async () => {
-    const app = getFirebaseAppInstance()
-    if (!app) return
-    setAuthBusy(true)
-    try {
-      await signInWithPopup(getAuth(app), new GoogleAuthProvider())
-    } catch {
-      // user closed popup
-    } finally {
-      setAuthBusy(false)
-    }
-  }
-
   if (status === 'loading' || status === 'redirecting') {
     return null
+  }
+
+  if (status === 'sign_in') {
+    const handleDevSignIn = async () => {
+      const app = getFirebaseAppInstance()
+      if (!app) return
+      setAuthBusy(true)
+      try {
+        await signInWithPopup(getAuth(app), new GoogleAuthProvider())
+      } catch {
+        setAuthBusy(false)
+      }
+    }
+    return (
+      <main className="auth-gate-shell">
+        <section className="auth-gate-card" aria-live="polite">
+          <h1>Local Development Sign-in</h1>
+          <p>Sign in with your Google account to test with real auth.</p>
+          <div className="auth-gate-actions">
+            <Button onClick={handleDevSignIn} disabled={authBusy}>
+              Sign in with Google
+            </Button>
+          </div>
+        </section>
+      </main>
+    )
   }
 
   return (
     <main className="auth-gate-shell">
       <section className="auth-gate-card" aria-live="polite">
-        {status === 'config_error' && IS_DEV && !runtimeConfig.configError ? (
-          <>
-            <h1>Sign in</h1>
-            <p>Sign in with your Google account to continue.</p>
-            <div className="auth-gate-actions">
-              <Button onClick={handleDevSignIn} disabled={authBusy}>
-                Sign in with Google
-              </Button>
-            </div>
-          </>
-        ) : status === 'config_error' ? (
+        {status === 'config_error' ? (
           <>
             <h1>Unavailable</h1>
             <p>
