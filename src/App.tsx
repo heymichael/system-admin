@@ -82,7 +82,6 @@ export function App() {
       <GlobalNav
         activeAppId="system_administration"
         apps={authUser.accessibleApps}
-        adminApps={authUser.accessibleAdminApps}
         userEmail={authUser.email}
         userPhotoURL={authUser.photoURL}
         userDisplayName={authUser.displayName}
