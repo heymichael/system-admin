@@ -2,7 +2,7 @@
 
 ## Overview
 
-Single-page admin app for managing platform users and role assignments, served at `/admin/system/`. No backend service — all data flows through the shared agent service API (`/agent/api/`).
+Multi-page admin app for managing platform users, role assignments, and app permissions, served at `/admin/system/`. Uses `react-router-dom` for client-side routing. No backend service — all data flows through the shared agent service API (`/agent/api/`).
 
 ```
 Browser
@@ -38,10 +38,14 @@ admin-system/
 │   │   ├── AuthGate.tsx          # Auth gate (requires admin role)
 │   │   ├── AuthUserContext.ts    # React context (AuthUser = BaseAuthUser)
 │   │   └── runtimeConfig.ts     # Firebase config from VITE_* env vars
-│   ├── App.tsx                   # Root: GlobalNav + user list + modals
+│   ├── pages/
+│   │   ├── UsersPage.tsx         # User list + create/edit/delete modals
+│   │   ├── RolesPage.tsx         # Role assignment matrix (user, admin)
+│   │   └── AppsPage.tsx          # App permission management (granting roles)
+│   ├── App.tsx                   # Router shell: GlobalNav + horizontal tab nav + Outlet
 │   ├── CreateUserDialog.tsx      # New user creation modal
 │   ├── UserDetailModal.tsx       # View/edit/delete user modal
-│   ├── api.ts                    # API functions (agentFetch → /agent/api/users)
+│   ├── api.ts                    # API functions (agentFetch → /agent/api/users, /apps)
 │   ├── index.css                 # App color tokens
 │   ├── main.tsx
 │   └── vite-env.d.ts
@@ -77,17 +81,23 @@ admin-system/
 
 | Path | Target | Notes |
 |------|--------|-------|
-| `/admin/system/*` | Firebase Hosting → SPA `index.html` | Client-side routing |
+| `/admin/system/` | Users page | Default landing (index route) |
+| `/admin/system/roles` | Roles page | Role assignment matrix |
+| `/admin/system/apps` | Apps page | App permission management |
+| `/admin/system/*` | Firebase Hosting → SPA `index.html` | All routes served by SPA |
 | `/agent/api/**` | Firebase Hosting rewrite → Cloud Run `agent-api` | Shared agent service |
+
+Client-side routing uses `react-router-dom` with `basename="/admin/system"`.
 
 ## UI architecture
 
 The SPA uses shared components from `@haderach/shared-ui` (consumed via `file:` protocol from `../haderach-home/packages/shared-ui`):
 
-- **GlobalNav** — cross-app top navigation bar (logo, apps dropdown, user avatar).
+- **GlobalNav** — cross-app top navigation bar with avatar dropdown (profile info, Settings link, Log out).
 - **UserTable** — configurable user list table with column definitions, sorting, type-ahead search, sticky headers, loading/empty states, and row click handler.
 - **AdminModal** — generic modal shell with title, close button, scrollable body, optional footer. Used by `UserDetailModal`.
 - **TagBadge** — styled pill for role badges.
+- **Input** — shadcn input used in inline editing on the Apps page.
 - **Button** — shadcn button used in create/edit actions.
 
 Layout hierarchy (in `App.tsx`):
@@ -95,13 +105,18 @@ Layout hierarchy (in `App.tsx`):
 ```
 .min-h-screen (flex column)
 ├── GlobalNav (top bar)
-└── main (centered, max-w-4xl)
-    ├── Header (title + Create user button)
-    └── UserTable (sortable, searchable user list)
-        └── Row click → UserDetailModal
+└── main (centered, max-w-5xl)
+    ├── Horizontal tab nav (Users | Roles | Apps)
+    └── <Outlet /> (active page)
 ```
 
-The app filters out `haderach_user` role holders from the user list (they're managed separately). Navigation is state-driven (no client-side router). The `GlobalNav` receives accessible apps from the RBAC system via `AuthUserContext`.
+### Pages
+
+**Users** (index route): User list with create/edit/delete. Filters out `haderach_user` role holders. Row click opens `UserDetailModal`.
+
+**Roles**: Toggle matrix showing each user's assigned roles. Only `user` and `admin` are assignable via the UI; `finance_admin` is managed directly in Firestore.
+
+**Apps**: Table of app definitions split into "Applications" and "Admin" sections. Inline editing for label and granting roles. Card and Vendor Administration are hidden (not grantable from system admin). Data from `GET /apps` and `PATCH /apps/{id}` endpoints.
 
 ## API contract
 
@@ -114,6 +129,8 @@ All API calls go through `agentFetch` from `@haderach/shared-ui`, which prepends
 | `/users/{email}` | `GET` | Fetch user detail (includes allowed vendors) |
 | `/users/{email}` | `PATCH` | Update user fields (roles, name) |
 | `/users/{email}` | `DELETE` | Remove a user |
+| `/apps` | `GET` | List all app definitions with granting roles |
+| `/apps/{id}` | `PATCH` | Update app label, granting roles, or sort order (admin-gated) |
 | `/me` | `GET` | Fetch authenticated user's roles and profile (via shared `fetchUserDoc`) |
 
 ## Authentication
@@ -160,6 +177,4 @@ Set `VITE_AUTH_BYPASS=true` in `.env` for UI-only development without auth. Set 
 
 ## Deferred
 
-- Multi-page routing with react-router-dom (task 80)
-- App permissions management page (task 77)
 - E2E tests
