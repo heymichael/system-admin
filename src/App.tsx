@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, NavLink, Navigate, Outlet } from 'react-router-dom'
-import { GlobalNav } from '@haderach/shared-ui'
+import { AppRail, useRailExpanded } from '@haderach/shared-ui'
 import { useAuthUser } from './auth/AuthUserContext'
 import { UsersPage } from './pages/UsersPage'
 import { RolesPage } from './pages/RolesPage'
@@ -14,40 +14,45 @@ const NAV_ITEMS = [
 
 function AppLayout() {
   const authUser = useAuthUser()
+  const [railExpanded, toggleRail] = useRailExpanded()
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
-      <GlobalNav
-        activeAppId="system_administration"
+    <div className="flex h-screen bg-background text-foreground">
+      <AppRail
         apps={authUser.accessibleApps}
+        activeAppId="system_administration"
+        expanded={railExpanded}
+        onToggle={toggleRail}
         userEmail={authUser.email}
         userPhotoURL={authUser.photoURL}
         userDisplayName={authUser.displayName}
         onSignOut={authUser.signOut}
       />
 
-      <main className="mx-auto w-full max-w-5xl px-6 py-8">
-        <nav className="flex gap-1 border-b border-border mb-6">
-          {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
-            <NavLink
-              key={to}
-              to={to}
-              end={end}
-              className={({ isActive }) =>
-                `flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors -mb-px ${
-                  isActive
-                    ? 'border-b-2 border-foreground text-foreground'
-                    : 'text-foreground-muted hover:text-foreground'
-                }`
-              }
-            >
-              <Icon className="h-4 w-4" />
-              {label}
-            </NavLink>
-          ))}
-        </nav>
+      <main className="flex-1 overflow-y-auto">
+        <div className="mx-auto w-full max-w-5xl px-6 py-8">
+          <nav className="flex gap-1 border-b border-border mb-6">
+            {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+              <NavLink
+                key={to}
+                to={to}
+                end={end}
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-4 py-2 text-sm font-medium transition-colors -mb-px ${
+                    isActive
+                      ? 'border-b-2 border-foreground text-foreground'
+                      : 'text-foreground-muted hover:text-foreground'
+                  }`
+                }
+              >
+                <Icon className="h-4 w-4" />
+                {label}
+              </NavLink>
+            ))}
+          </nav>
 
-        <Outlet />
+          <Outlet />
+        </div>
       </main>
     </div>
   )
