@@ -27,6 +27,7 @@ function AppLayout() {
         userPhotoURL={authUser.photoURL}
         userDisplayName={authUser.displayName}
         onSignOut={authUser.signOut}
+        getIdToken={authUser.getIdToken}
       />
 
       <main className="flex-1 overflow-y-auto">
