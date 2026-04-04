@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, NavLink, Navigate, Outlet } from 'react-router-dom'
 import { AppRail, useRailExpanded } from '@haderach/shared-ui'
-import { useAuthUser } from './auth/AuthUserContext'
+import { useAuthUser } from '@haderach/shared-ui'
 import { UsersPage } from './pages/UsersPage'
 import { RolesPage } from './pages/RolesPage'
 import { AppsPage } from './pages/AppsPage'

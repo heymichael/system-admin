@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Button, Input, TagBadge } from '@haderach/shared-ui'
-import { useAuthUser } from '../auth/AuthUserContext'
+import { useAuthUser } from '@haderach/shared-ui'
 import { fetchApps, updateApp } from '../api'
 import type { AppDefinition } from '../api'
 import { Loader2, Pencil, Save, X } from 'lucide-react'
@@ -73,9 +73,6 @@ export function AppsPage() {
     <>
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-foreground">App Permissions</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Manage which roles grant access to each application.
-        </p>
       </div>
 
       {error && (
