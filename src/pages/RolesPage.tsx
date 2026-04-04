@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { TagBadge } from '@haderach/shared-ui'
-import { useAuthUser } from '../auth/AuthUserContext'
+import { useAuthUser } from '@haderach/shared-ui'
 import { fetchUsers, updateUser } from '../api'
 import type { UserSummary } from '../api'
 import { Loader2 } from 'lucide-react'

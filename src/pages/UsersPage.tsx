@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button, UserTable, TagBadge } from '@haderach/shared-ui'
 import type { UserTableColumn } from '@haderach/shared-ui'
-import { useAuthUser } from '../auth/AuthUserContext'
+import { useAuthUser } from '@haderach/shared-ui'
 import { UserDetailModal } from '../UserDetailModal'
 import { CreateUserDialog } from '../CreateUserDialog'
 import { fetchUsers } from '../api'
