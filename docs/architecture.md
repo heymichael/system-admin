@@ -15,7 +15,7 @@ Browser
                               Cloud Run (agent-api, FastAPI)
                                    │
                                    ▼
-                              Firestore (users collection)
+                              Cloud SQL Postgres (users, roles, apps)
 ```
 
 ## Ownership boundaries
@@ -23,7 +23,7 @@ Browser
 | Concern | Owner |
 |---------|-------|
 | SPA frontend, CI, artifact publish | This repo (`admin-system`) |
-| Shared UI components (GlobalNav, UserTable, AdminModal, TagBadge, primitives) | `haderach-home` (`@haderach/shared-ui`) |
+| Shared UI components (AppRail, UserTable, AdminModal, TagBadge, FeedbackPopover, primitives) | `haderach-home` (`@haderach/shared-ui`) |
 | Auth primitives (BaseAuthUser, fetchUserDoc, buildDisplayName, RBAC helpers) | `haderach-home` (`@haderach/shared-ui`) |
 | Agent API endpoints (`/users` CRUD, `/me`) | `agent` repo |
 | Firebase Hosting config, routing rewrites, deploy orchestration | `haderach-platform` |
@@ -55,10 +55,14 @@ admin-system/
 ├── docs/
 │   └── architecture.md           # This file
 ├── .cursor/
-│   ├── rules/                    # AI conventions
-│   └── skills/
-│       └── brand-guidelines/
-│           └── SKILL.md
+│   └── rules/
+│       ├── architecture-pointer.mdc
+│       ├── branch-safety-reminder.mdc
+│       ├── cross-repo-status.mdc
+│       ├── pr-conventions.mdc
+│       ├── repo-hygiene.mdc
+│       ├── service-oriented-data-access.mdc
+│       └── todo-conventions.mdc
 ├── .github/
 │   ├── pull_request_template.md
 │   └── workflows/
@@ -93,7 +97,7 @@ Client-side routing uses `react-router-dom` with `basename="/admin/system"`.
 
 The SPA uses shared components from `@haderach/shared-ui` (consumed via `file:` protocol from `../haderach-home/packages/shared-ui`):
 
-- **GlobalNav** — cross-app top navigation bar with avatar dropdown (profile info, Settings link, Log out).
+- **AppRail** — collapsible left rail for domain navigation with feedback popover and user avatar flyout. Replaces the legacy GlobalNav.
 - **UserTable** — configurable user list table with column definitions, sorting, type-ahead search, sticky headers, loading/empty states, and row click handler.
 - **AdminModal** — generic modal shell with title, close button, scrollable body, optional footer. Used by `UserDetailModal`.
 - **TagBadge** — styled pill for role badges.
@@ -103,18 +107,19 @@ The SPA uses shared components from `@haderach/shared-ui` (consumed via `file:` 
 Layout hierarchy (in `App.tsx`):
 
 ```
-.min-h-screen (flex column)
-├── GlobalNav (top bar)
-└── main (centered, max-w-5xl)
-    ├── Horizontal tab nav (Users | Roles | Apps)
-    └── <Outlet /> (active page)
+.flex.h-screen
+├── AppRail (left rail)
+└── main.flex-1 (overflow-y-auto)
+    └── .max-w-5xl (centered)
+        ├── Horizontal tab nav (Users | Roles | Apps)
+        └── <Outlet /> (active page)
 ```
 
 ### Pages
 
 **Users** (index route): User list with create/edit/delete. Filters out `haderach_user` role holders. Row click opens `UserDetailModal`.
 
-**Roles**: Toggle matrix showing each user's assigned roles. Only `user` and `admin` are assignable via the UI; `finance_admin` is managed directly in Firestore.
+**Roles**: Toggle matrix showing each user's assigned roles. Only `user` and `admin` are assignable via the UI; `finance_admin` is managed via the agent API or seed scripts.
 
 **Apps**: Table of app definitions split into "Applications" and "Admin" sections. Inline editing for label and granting roles. Card and Vendor Administration are hidden (not grantable from system admin). Data from `GET /apps` and `PATCH /apps/{id}` endpoints.
 
