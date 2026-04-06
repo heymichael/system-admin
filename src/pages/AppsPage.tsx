@@ -65,7 +65,7 @@ export function AppsPage() {
     }
   }, [editingId, editLabel, editRoles, authUser.getIdToken])
 
-  const HIDDEN_APPS = new Set(['card', 'vendor_administration'])
+  const HIDDEN_APPS = new Set(['card', 'stocks'])
   const appTypeApps = apps.filter((a) => a.type === 'app' && !HIDDEN_APPS.has(a.id))
   const adminApps = apps.filter((a) => a.type === 'admin' && !HIDDEN_APPS.has(a.id))
 
