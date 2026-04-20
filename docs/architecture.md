@@ -117,7 +117,7 @@ Layout hierarchy (in `App.tsx`):
 
 ### Pages
 
-**Users** (index route): User list with create/edit/delete. Filters out `haderach_user` role holders. Row click opens `UserDetailModal`.
+**Users** (index route): User list with create/edit/delete. Row click opens `UserDetailModal`.
 
 **Roles**: Toggle matrix showing each user's assigned roles. Only `user` and `admin` are assignable via the UI; `finance_admin` is managed via the agent API or seed scripts.
 
