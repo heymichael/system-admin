@@ -93,7 +93,6 @@ export function UsersPage() {
         columns={columns}
         loading={loading}
         onRowClick={setSelectedUser}
-        filterFn={(u) => !u.roles.includes('haderach_user')}
       />
 
       {selectedUser && (

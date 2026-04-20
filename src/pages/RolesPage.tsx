@@ -20,7 +20,7 @@ export function RolesPage() {
     try {
       const data = await fetchUsers(authUser.getIdToken)
       data.sort((a, b) => a.email.localeCompare(b.email))
-      setUsers(data.filter((u) => !u.roles.includes('haderach_user')))
+      setUsers(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load users')
     } finally {
