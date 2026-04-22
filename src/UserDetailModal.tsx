@@ -4,7 +4,7 @@ import { fetchUserDetail, updateUser, deleteUser } from './api'
 import type { UserDetail } from './api'
 import { Pencil, Trash2, Save, Loader2 } from 'lucide-react'
 
-const ASSIGNABLE_ROLES = ['user', 'admin'] as const
+const ASSIGNABLE_ROLES = ['user', 'home', 'admin'] as const
 
 interface Props {
   userEmail: string
