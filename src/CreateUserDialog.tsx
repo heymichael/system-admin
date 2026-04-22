@@ -3,7 +3,7 @@ import { Button, Input, AdminModal } from '@haderach/shared-ui'
 import { createUser } from './api'
 import { Loader2 } from 'lucide-react'
 
-const ASSIGNABLE_ROLES = ['user', 'admin'] as const
+const ASSIGNABLE_ROLES = ['user', 'home', 'admin'] as const
 
 interface Props {
   getIdToken: () => Promise<string>
