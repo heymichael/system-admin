@@ -64,3 +64,6 @@ Follows the standard Haderach app delivery contract:
 1. Merge to `main` triggers CI → artifact publish to GCS
 2. Platform `deploy.yml` workflow promotes the artifact to Firebase Hosting
 3. Artifact path: `gs://<bucket>/admin-system/versions/<commit-sha>/`
+
+Workspace-level Cursor rule coverage is tracked in
+`../haderach-platform/docs/cursor-rule-matrix.md`.
