@@ -4,6 +4,11 @@
 
 Multi-page admin app for managing platform users, role assignments, and app permissions, served at `/admin/system/`. Uses `react-router-dom` for client-side routing. No backend service — all data flows through the shared agent service API (`/agent/api/`).
 
+## Cursor Rules
+
+Workspace-level Cursor rule coverage and `alwaysApply` settings are tracked in
+`../haderach-platform/docs/cursor-rule-matrix.md`.
+
 ```
 Browser
   │
